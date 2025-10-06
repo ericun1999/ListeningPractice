@@ -177,35 +177,38 @@ const ChordGuesser = () => {
   const [isLoaded, setIsLoaded] = useState(false);
   const soundRef = useRef(null);
 
-useEffect(() => {
+  useEffect(() => {
+    // Detect iOS for html5 mode
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    
     soundRef.current = new Howl({
-        src: [pianosprite],
-        onload() {
-            console.log('Sound file loaded');
-            initSprites();
-            setIsLoaded(true);
-        },
-        onloaderror(id, error) {
-            console.error('Sound load error:', id, error);
-        }
+      src: [pianosprite],
+      html5: isIOS, // Enable HTML5 mode only on iOS to fix no-sound issue
+      onload() {
+        console.log('Sound file loaded');
+        initSprites();
+        setIsLoaded(true);
+      },
+      onloaderror(id, error) {
+        console.error('Sound load error:', id, error);
+      },
     });
 
     const initSprites = () => {
-        const lengthOfNote = 2400;
-        let timeIndex = 0;
-        for (let i = 24; i <= 96; i++) {
-            soundRef.current['_sprite'][i] = [timeIndex, lengthOfNote];
-            timeIndex += lengthOfNote;
-        }
+      const lengthOfNote = 2400;
+      let timeIndex = 0;
+      for (let i = 24; i <= 96; i++) {
+        soundRef.current['_sprite'][i] = [timeIndex, lengthOfNote];
+        timeIndex += lengthOfNote;
+      }
     };
 
     return () => {
-        if (soundRef.current) {
-            soundRef.current.unload();
-        }
+      if (soundRef.current) {
+        soundRef.current.unload();
+      }
     };
-}, []);
-
+  }, []);
 
   const generateRandomChord = () => {
     const randomRootIndex = Math.floor(Math.random() * startNotes.length);
@@ -239,11 +242,18 @@ useEffect(() => {
 
   const playChord = (chordNotes) => {
     if (!isLoaded || !soundRef.current) return;
-
+    
+    // Stop any currently playing sounds to prevent overlaps/extra notes
+    soundRef.current.stop();
+    
     const chordMidiNumbers = chordNotes.map(noteName => note(noteName).midi);
     soundRef.current.volume(0.75);
-    chordMidiNumbers.forEach(midi => {
-      soundRef.current.play(midi.toString());
+    
+    // Play notes with a tiny delay to ensure they start as simultaneously as possible
+    chordMidiNumbers.forEach((midi, index) => {
+      setTimeout(() => {
+        soundRef.current.play(midi.toString());
+      }, index * 10); // 10ms stagger for better sync on HTML5
     });
   };
 
@@ -301,5 +311,3 @@ useEffect(() => {
 };
 
 export default ChordGuesser;
-
-
