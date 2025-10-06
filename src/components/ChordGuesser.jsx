@@ -33,7 +33,7 @@ const CHORDS = [
 ];
 
 const startNotes = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
-const octaves = [2];
+const octaves = [3];
 
 const ChordGuesser = () => {
   const [currentChord, setCurrentChord] = useState(null);
