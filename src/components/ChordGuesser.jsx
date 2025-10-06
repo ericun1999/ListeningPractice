@@ -254,7 +254,7 @@ const ChordGuesser = () => {
   }, [isLoaded]);
 
   return (
-    <div className="min-h-screen bg-green-100 flex flex-col items-center p-4">
+    <div className="min-h-screen bg-green-50 flex flex-col items-center p-4">
       <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
         <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Chord Guessing Practice</h1>
         

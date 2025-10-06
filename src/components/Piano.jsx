@@ -26,7 +26,7 @@ function Piano() {
   };
 
   return (
-    <div className="flex flex-col items-center bg-green-100">
+    <div className="flex flex-col items-center bg-green-50">
       <h1 className="text-2xl font-bold mb-4 text-gray-800">listening practice</h1>
       <div className="relative flex">
         {/* Render white keys */}
