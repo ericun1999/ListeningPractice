@@ -3,7 +3,6 @@ import { transpose, note } from '@tonaljs/tonal';
 import { chord } from '@tonaljs/chord';
 import { Howl } from 'howler';
 import pianosprite from '../assets/pianosprite.mp3'
-
 {/*const CHORDS = [
   // ==Major==
   ["1P 3M 5P", "major", "M ^  maj"],
@@ -167,7 +166,6 @@ const CHORDS = [
   ["1P 5P", "fifth", "5"],
   ["1P 3M 5A", "augmented", "aug + +5 ^#5"],
 ];
-
 const startNotes = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
 const octaves = [2];
 
@@ -177,55 +175,37 @@ const ChordGuesser = () => {
   const [notes, setNotes] = useState([]);
   const [intervals, setIntervals] = useState([]);
   const [isLoaded, setIsLoaded] = useState(false);
-  const [audioUnlocked, setAudioUnlocked] = useState(false);
   const soundRef = useRef(null);
-  const playQueue = useRef([]); // Queue for retrying plays after unlock
 
-  useEffect(() => {
+useEffect(() => {
     soundRef.current = new Howl({
-      src: [pianosprite],
-      html5: true, // Fallback to HTML5 audio on iOS for better compatibility
-      onload() {
-        console.log('Sound file loaded');
-        initSprites();
-        setIsLoaded(true);
-        // Generate chord on load, but don't play yet
-        generateRandomChord();
-      },
-      onloaderror(id, error) {
-        console.error('Sound load error:', id, error);
-      },
-      onplayerror() {
-        // On iOS, queue the play for retry after unlock
-        console.log('Play failed - likely iOS lock. Waiting for unlock.');
-        playQueue.current.push(notes); // Queue current notes to retry
-      },
-      onunlock() {
-        console.log('Audio unlocked!');
-        setAudioUnlocked(true);
-        // Retry any queued plays
-        if (playQueue.current.length > 0) {
-          playQueue.current.forEach(queuedNotes => playChord(queuedNotes));
-          playQueue.current = [];
+        src: [pianosprite],
+        onload() {
+            console.log('Sound file loaded');
+            initSprites();
+            setIsLoaded(true);
+        },
+        onloaderror(id, error) {
+            console.error('Sound load error:', id, error);
         }
-      },
     });
 
     const initSprites = () => {
-      const lengthOfNote = 2400;
-      let timeIndex = 0;
-      for (let i = 24; i <= 96; i++) {
-        soundRef.current['_sprite'][i] = [timeIndex, lengthOfNote];
-        timeIndex += lengthOfNote;
-      }
+        const lengthOfNote = 2400;
+        let timeIndex = 0;
+        for (let i = 24; i <= 96; i++) {
+            soundRef.current['_sprite'][i] = [timeIndex, lengthOfNote];
+            timeIndex += lengthOfNote;
+        }
     };
 
     return () => {
-      if (soundRef.current) {
-        soundRef.current.unload();
-      }
+        if (soundRef.current) {
+            soundRef.current.unload();
+        }
     };
-  }, []);
+}, []);
+
 
   const generateRandomChord = () => {
     const randomRootIndex = Math.floor(Math.random() * startNotes.length);
@@ -254,10 +234,7 @@ const ChordGuesser = () => {
     setNotes(chordNotes);
     setIntervals(chordIntervals);
     setShowAnswer(false);
-    // Don't auto-play here - let user trigger it
-    if (audioUnlocked) {
-      playChord(chordNotes);
-    }
+    playChord(chordNotes);
   };
 
   const playChord = (chordNotes) => {
@@ -270,13 +247,11 @@ const ChordGuesser = () => {
     });
   };
 
-  const handlePlay = () => {
-    playChord(notes);
-    if (!audioUnlocked) {
-      // First play will unlock on iOS
-      soundRef.current.once('unlock', () => setAudioUnlocked(true));
+  useEffect(() => {
+    if (isLoaded) {
+      generateRandomChord();
     }
-  };
+  }, [isLoaded]);
 
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center p-4">
@@ -285,11 +260,10 @@ const ChordGuesser = () => {
         
         <div className="mb-6">
           <button
-            onClick={handlePlay}
+            onClick={() => playChord(notes)}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-200"
-            disabled={!isLoaded}
           >
-            {isLoaded ? (audioUnlocked ? 'Play Chord' : 'Tap to Start Audio') : 'Loading...'}
+            Play Again
           </button>
         </div>
 
@@ -321,12 +295,11 @@ const ChordGuesser = () => {
         {!isLoaded && (
           <p className="text-center text-gray-500 mt-4">Loading sounds...</p>
         )}
-        {!audioUnlocked && isLoaded && (
-          <p className="text-center text-yellow-600 mt-2 text-sm">Tap "Tap to Start Audio" to enable sound (iOS requirement).</p>
-        )}
       </div>
     </div>
   );
 };
 
 export default ChordGuesser;
+
+
