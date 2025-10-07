@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import Piano from './components/Piano';
 import ChordGuesser from './components/ChordGuesser';
 import IntervalGuesser from './components/IntervalGuesser';
-import { Chord1, Chord2, Chord3, Intervals } from './data/data';
+import { Chord1, Chord2, Chord3, Chord4, Intervals } from './data/data';
 
 function App() {
   const [selectedGroup, setSelectedGroup] = useState('Major Minor Suspended Augmented');
@@ -11,6 +11,7 @@ function App() {
     'Major Minor Suspended Augmented': Chord1,
     'Major Minor Suspended Augmented Diminished': Chord2,
     'Seventh': Chord3,
+    'Major Minor Suspended Augmented Diminished Seventh': Chord4,
     'Intervals': Intervals
   };
 

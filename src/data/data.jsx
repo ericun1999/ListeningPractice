@@ -37,7 +37,7 @@ const Chord2 = {
 
 
 const Chord3 = {
-    group: "Major Minor Suspended Augmented Diminished Seventh",
+    group: "Seventh",
     chords: [
   // ==Major==
   ["1P 3M 5P 7M", "major seventh", "maj7 Δ ma7 M7 Maj7 ^7"],
@@ -58,7 +58,7 @@ const Chord3 = {
 ]}
 
 const Chord4 = {
-    group: "Seventh",
+    group: "Major Minor Suspended Augmented Diminished Seventh",
     chords: [
         // ==Major==
   ["1P 3M 5P", "major", "M ^  maj"],
