@@ -1,14 +1,13 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { transpose, note } from '@tonaljs/tonal';
-import { chord } from '@tonaljs/chord';
 import { Howl } from 'howler';
 import pianosprite from '../assets/pianosprite.mp3'
 
-const ChordGuesser = ({ chords }) => {
-  const [currentChord, setCurrentChord] = useState(null);
+const IntervalGuesser = ({ intervals }) => {
+  const [currentInterval, setCurrentInterval] = useState(null);
   const [showAnswer, setShowAnswer] = useState(false);
   const [notes, setNotes] = useState([]);
-  const [intervals, setIntervals] = useState([]);
+  const [intervalStr, setIntervalStr] = useState('');
   const [isLoaded, setIsLoaded] = useState(false);
   const soundRef = useRef(null);
 
@@ -41,52 +40,44 @@ const ChordGuesser = ({ chords }) => {
     };
   }, []);
 
-  const generateRandomChord = () => {
+  const generateRandomInterval = () => {
     const randomRootIndex = Math.floor(Math.random() * startNotes.length);
-    const randomChordIndex = Math.floor(Math.random() * chords.length);
+    const randomIntervalIndex = Math.floor(Math.random() * intervals.length);
     const randomOctave = octaves[Math.floor(Math.random() * octaves.length)];
 
     const root = startNotes[randomRootIndex];
-    const chordData = chords[randomChordIndex];
-    const abrv = chordData[2].split(' ')[0]; // First abbreviation
-    const fullName = chordData[1];
-    const symbol = root + abrv;
-    const chordFullName = root + ' ' + (fullName || abrv);
-
-    let chordIntervals;
-    try {
-      chordIntervals = chord(symbol).intervals;
-    } catch (e) {
-      // Fallback if symbol invalid, regenerate
-      return generateRandomChord();
-    }
+    const intervalData = intervals[randomIntervalIndex];
+    const interval = intervalData[0]; // e.g., "3M"
+    const fullName = intervalData[1]; // e.g., "major third"
+    const abrevs = intervalData[2]; // e.g., "M3 3"
 
     const startNoteWithOctave = root + randomOctave;
-    const chordNotes = chordIntervals.map(interval => transpose(startNoteWithOctave, interval));
+    const secondNote = transpose(startNoteWithOctave, interval);
+    const intervalNotes = [startNoteWithOctave, secondNote];
 
-    setCurrentChord(chordFullName);
-    setNotes(chordNotes);
-    setIntervals(chordIntervals);
+    setCurrentInterval(fullName);
+    setNotes(intervalNotes);
+    setIntervalStr(interval);
     setShowAnswer(false);
-    playChord(chordNotes);
+    playInterval(intervalNotes);
   };
 
-  const playChord = (chordNotes) => {
+  const playInterval = (intervalNotes) => {
     if (!isLoaded || !soundRef.current) return;
-    const chordMidiNumbers = chordNotes.map(noteName => note(noteName).midi);
+    const midiNumbers = intervalNotes.map(noteName => note(noteName).midi);
     soundRef.current.volume(0.75);
-    chordMidiNumbers.forEach(midi => {
-      console.log(midi)
+    midiNumbers.forEach(midi => {
+      console.log(midi);
       soundRef.current.play(midi.toString());
     });
   };
 
-  const playBrokenChord = (chordNotes) => {
+  const playBrokenInterval = (intervalNotes) => {
     if (!isLoaded || !soundRef.current) return;
-    const chordMidiNumbers = chordNotes.map(noteName => note(noteName).midi);
+    const midiNumbers = intervalNotes.map(noteName => note(noteName).midi);
     soundRef.current.volume(0.75);
     let delay = 0;
-    chordMidiNumbers.forEach(midi => {
+    midiNumbers.forEach(midi => {
       setTimeout(() => {
         soundRef.current.play(midi.toString());
       }, delay);
@@ -96,30 +87,30 @@ const ChordGuesser = ({ chords }) => {
 
   useEffect(() => {
     if (isLoaded) {
-      generateRandomChord();
+      generateRandomInterval();
     }
-  }, [isLoaded, chords]);
+  }, [isLoaded, intervals]);
 
   const startNotes = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
-  const octaves = [2, 3];
+  const octaves = [2, 3]; // Adjusted for better range with intervals
 
   return (
     <div className="min-h-screen bg-green-50 flex flex-col items-center p-4">
       <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Chord Guessing Practice</h1>
+        <h1 className="text-2xl font-bold text-center mb-6 text-gray-800">Interval Guessing Practice</h1>
         
         <div className="mb-6 space-y-2">
           <button
-            onClick={() => playChord(notes)}
+            onClick={() => playInterval(notes)}
             className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded transition duration-200"
           >
             Play Again
           </button>
           <button
-            onClick={() => playBrokenChord(notes)}
+            onClick={() => playBrokenInterval(notes)}
             className="w-full bg-orange-500 hover:bg-orange-600 text-white font-bold py-2 px-4 rounded transition duration-200"
           >
-            Play Broken
+            Play Sequential
           </button>
         </div>
 
@@ -134,18 +125,18 @@ const ChordGuesser = ({ chords }) => {
           </div>
         ) : (
           <div className="mb-6 text-center">
-            <p className="text-3xl font-bold text-purple-600">{currentChord}</p>
-            <p className="text-lg font-mono text-gray-600 mb-2">Notes: {notes.join(' - ')}</p>
-            <p className="text-sm text-gray-500">Intervals: {intervals.join(' - ')}</p>
+            <p className="text-3xl font-bold text-purple-600">{currentInterval}</p>
+            <p className="text-lg font-mono text-gray-600 mb-2">Notes: {notes.join(' to ')}</p>
+            <p className="text-sm text-gray-500">Interval: {intervalStr}</p>
           </div>
         )}
 
         <button
-          onClick={generateRandomChord}
+          onClick={generateRandomInterval}
           className="w-full bg-indigo-500 hover:bg-indigo-600 text-white font-bold py-2 px-4 rounded transition duration-200"
           disabled={!isLoaded}
         >
-          Next Chord
+          Next Interval
         </button>
 
         {!isLoaded && (
@@ -156,4 +147,4 @@ const ChordGuesser = ({ chords }) => {
   );
 };
 
-export default ChordGuesser;
+export default IntervalGuesser;
