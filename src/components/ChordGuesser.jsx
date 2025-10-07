@@ -101,7 +101,7 @@ const ChordGuesser = ({ chords }) => {
   }, [isLoaded, chords]);
 
   const startNotes = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
-  const octaves = [2, 3];
+  const octaves = [2];
 
   return (
     <div className="min-h-screen bg-green-50 flex flex-col items-center p-4">

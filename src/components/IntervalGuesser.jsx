@@ -92,7 +92,7 @@ const IntervalGuesser = ({ intervals }) => {
   }, [isLoaded, intervals]);
 
   const startNotes = ['C', 'C#', 'Db', 'D', 'D#', 'Eb', 'E', 'F', 'F#', 'Gb', 'G', 'G#', 'Ab', 'A', 'A#', 'Bb', 'B'];
-  const octaves = [2, 3]; // Adjusted for better range with intervals
+  const octaves = [2]; // Adjusted for better range with intervals
 
   return (
     <div className="min-h-screen bg-green-50 flex flex-col items-center p-4">
